@@ -7,7 +7,7 @@
 	let connected: boolean = false;
 	let voted: boolean = false;
 
-	let provider;
+	let provider: IFrameEthereumProvider;
 
 	onMount(() => {
 		provider = new IFrameEthereumProvider();
