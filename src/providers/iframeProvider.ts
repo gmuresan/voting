@@ -227,7 +227,6 @@ export class IFrameEthereumProvider extends EventEmitter<IFrameEthereumProviderE
 			method,
 			...(typeof params === 'undefined' ? null : { params })
 		};
-		debugger;
 
 		const promise = new Promise<
 			JsonRpcSucessfulResponseMessage<TResult> | JsonRpcErrorResponseMessage<TErrorData>
