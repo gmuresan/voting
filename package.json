@@ -2,7 +2,7 @@
 	"name": "voting",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "vite dev --port 5175",
+		"dev": "vite dev --port 5175 --host voting",
 		"build": "vite build",
 		"package": "svelte-kit package",
 		"preview": "vite preview",
