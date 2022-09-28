@@ -184,8 +184,20 @@ export class IFrameEthereumProvider extends EventEmitter<IFrameEthereumProviderE
 	}
 
 	public async connect() {
-		return new Promise((resolve) => {
-			this.eventSource.addEventListener('message', this.initPort.bind(this, resolve));
+		return new Promise<void>((resolve) => {
+			this.disconnect();
+			const initPort = this.initPort = (e) => {
+				if (e.data === 'web3Handshake') {
+					this.eventTarget.postMessage('initWeb3', '*');
+				} else if (e.data === 'initWeb3') {
+					this.port = e.ports[0];
+					this.disconnect();
+					this.port.onmessage = this.handleEventSourceMessage;
+					console.log('init child port', e, this.port);
+					resolve();
+				}
+			};
+			this.eventSource.addEventListener('message', initPort);
 			this.eventTarget.postMessage('initWeb3', '*');
 		});
 	}
@@ -195,20 +207,12 @@ export class IFrameEthereumProvider extends EventEmitter<IFrameEthereumProviderE
 	}
 
 	public disconnect() {
-		this.eventSource.removeEventListener('message', this.initPort);
+		if (this.initPort) {
+			this.eventSource.removeEventListener('message', this.initPort);
+		}
 	}
 
-	initPort = (resolve, e) => {
-		if (e.data === 'web3Handshake') {
-			this.eventTarget.postMessage('initWeb3', '*');
-		} else if (e.data === 'initWeb3') {
-			this.port = e.ports[0];
-			this.eventSource.removeEventListener('message', this.initPort);
-			this.port.onmessage = this.handleEventSourceMessage;
-			console.log('init child port', e, this.port);
-			resolve();
-		}
-	};
+	private initPort?: ((e: MessageEvent) => void);
 
 	/**
 	 * Helper method that handles transport and request wrapping
